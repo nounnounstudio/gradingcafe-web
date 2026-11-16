@@ -1,5 +1,5 @@
 // Offline-Speicher für das Grading-Café-Spiel. Bei jedem Update CACHE-Version erhöhen.
-const CACHE = 'gc-spiel-v24a';
+const CACHE = 'gc-spiel-v24b';
 const FILES = ['./', './index.html', './three.min.js', './zurueck.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png',
   './fonts/fraunces-latin-600-normal.woff2', './fonts/fraunces-latin-800-normal.woff2',
