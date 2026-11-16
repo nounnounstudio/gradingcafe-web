@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Grading Café</string>
+    <string name="title_activity_main">Grading Café</string>
+    <string name="package_name">de.gradingcafe.spiel</string>
+    <string name="custom_url_scheme">de.gradingcafe.spiel</string>
+</resources>

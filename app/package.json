@@ -1,0 +1,23 @@
+{
+  "name": "grading-cafe-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Grading Café – Das Spiel (Android/iOS-App mit Capacitor)",
+  "scripts": {
+    "www": "node copy-www.js",
+    "sync": "npm run www && npx cap sync",
+    "assets": "npx capacitor-assets generate --iconBackgroundColor '#120d0a' --splashBackgroundColor '#120d0a'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/app": "^6.0.1",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/ios": "^6.1.2",
+    "@capacitor/screen-orientation": "^6.0.2",
+    "@capacitor/status-bar": "^6.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2"
+  }
+}

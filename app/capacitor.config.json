@@ -1,0 +1,10 @@
+{
+  "appId": "de.gradingcafe.spiel",
+  "appName": "Grading Café",
+  "webDir": "www",
+  "backgroundColor": "#120d0a",
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 800, "backgroundColor": "#120d0a" }
+  }
+}
