@@ -157,12 +157,9 @@ section.block { padding: 56px 0; border-top: 1px solid var(--line); scroll-margi
 .board .board-note { font-size: .8rem; }
 
 /* Medien der echten App */
-.media { margin-top: 20px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
 .media-video, .shot { border-radius: 16px; overflow: hidden; background: var(--surface); border: 1px dashed var(--line); }
 .media-video { aspect-ratio: 16 / 9; }
 .media-video video, .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.shot { aspect-ratio: 9 / 16; }
 .placeholder { height: 100%; display: grid; place-content: center; justify-items: center; gap: 6px; padding: 12px; text-align: center; color: var(--muted); font-size: .85rem; }
 .placeholder .mono { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
 
@@ -555,20 +552,6 @@ footer { border-top: 1px solid var(--line); padding: 44px 0 56px; margin-top: 40
         </div>
       </div>
 
-      <!-- MEDIEN ZUR ECHTEN SPIEL-APP
-           Video: <video src="trailer.mp4" poster="trailer.jpg" controls playsinline muted></video> in .media-video einsetzen
-           Screenshots: <img src="screenshot-1.jpg" alt="Beschreibung"> in die .shot-Felder einsetzen
-           (Dateien neben die index.html legen) -->
-      <div class="media">
-        <div class="media-video">
-          <div class="placeholder"><span class="mono">Trailer</span><p data-i18n="media.video">Das erste Gameplay-Video der App kommt hierhin.</p></div>
-        </div>
-        <div class="shots">
-          <div class="shot"><div class="placeholder"><span class="mono">Screenshot 1</span></div></div>
-          <div class="shot"><div class="placeholder"><span class="mono">Screenshot 2</span></div></div>
-          <div class="shot"><div class="placeholder"><span class="mono">Screenshot 3</span></div></div>
-        </div>
-      </div>
     </div>
   </section>
 
