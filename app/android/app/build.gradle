@@ -7,7 +7,7 @@ android {
         applicationId "de.gradingcafe.spiel"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (project.findProperty("vc") ?: "1").toInteger()
+        versionCode Integer.parseInt((project.findProperty("vc") ?: "1").toString())
         versionName (project.findProperty("vn") ?: "1.0.0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
