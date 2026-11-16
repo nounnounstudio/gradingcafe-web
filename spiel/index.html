@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+<link rel="icon" href="../media/icon.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Grading Café – Prototyp</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>@font-face{font-family:Fraunces;font-weight:600;font-display:swap;src:url(fonts/fraunces-latin-600-normal.woff2) format('woff2')}@font-face{font-family:Fraunces;font-weight:800;font-display:swap;src:url(fonts/fraunces-latin-800-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:400;font-display:swap;src:url(fonts/inter-latin-400-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:500;font-display:swap;src:url(fonts/inter-latin-500-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:600;font-display:swap;src:url(fonts/inter-latin-600-normal.woff2) format('woff2')}@font-face{font-family:Inter;font-weight:700;font-display:swap;src:url(fonts/inter-latin-700-normal.woff2) format('woff2')}</style>
 <style>
   :root { --ink:#f5efe6; --muted:#c9bba8; --panel:rgba(24,18,14,.92); --acc:#e0a050; --good:#7fc97f; --bad:#e07060; }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -225,7 +226,7 @@
 <div id="dayCard"></div><div id="fps" style="position:fixed;left:8px;bottom:8px;z-index:20;font:600 12px system-ui;color:#fff;background:rgba(0,0,0,.5);padding:3px 7px;border-radius:6px;display:none;pointer-events:none"></div>
 <div class="overlay" id="ov"><div class="panel" id="ovPanel"></div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="three.min.js"></script>
 <script>
 (() => {
 'use strict';
@@ -1400,7 +1401,7 @@ const FLYER_W = 630, FLYER_H = 888, FLYER_HI = 2; // Anzeige 630×888, Download 
 const FLYER_DATA = [
   { id:'cafe', title:'Grading Café', kicker:'BALD IN ROTHENBURG OB DER TAUBER', tagline:'Kaffee. Karten. Die perfekte 10.', ribbon:'Das echte Café ist in Planung', c0:'#2a1a10', c1:'#120b07', acc:'#e0a050', ink:'#f5efe6',
     backTitle:'Was dich erwartet', rows:[['cup','Richtig guter Kaffee','Espresso, Cappuccino & kalte Drinks'],['cards','Booster & Einzelkarten','Pokémon, Yu-Gi-Oh! & mehr'],['lupe','Grading-Annahme','Wir schicken deine Karten sicher ein'],['trophy','Turniere & Tauschabende','Spielen, tauschen, fachsimpeln']],
-    boxTitle:'Sei von Anfang an dabei', contact:[['insta','@nounnounstudio'],['x','@NOUNNOUNStudio'],['mail','nounnounstudio@gmail.com']], note:'Gründer-Code aus dem Spiel? Gut aufheben – die Aktion zur Eröffnung ist in Planung.' },
+    boxTitle:'Sei von Anfang an dabei', contact:[['insta','@gradingcafe'],['globe','gradingcafe.de'],['mail','gradingcafecontact@gmail.com']], note:'Gründer-Code aus dem Spiel? Gut aufheben – die Aktion zur Eröffnung ist in Planung.' },
   { id:'shop', title:'Onlineshop', kicker:'VOM GRADING CAFÉ', tagline:'Booster, Einzelkarten & gegradete Slabs – sicher verpackt zu dir.', ribbon:'Bald online', c0:'#1d4bb0', c1:'#0b1a44', acc:'#ffd24a', ink:'#ffffff',
     backTitle:'So läuft’s', steps:[['cards','Aussuchen','Booster, Einzelkarten und Slabs'],['box','Sicher verpackt','Hülle, Toploader, Polster – wie im Laden'],['truck','Ab zu dir','Versand als Paket, gut geschützt']],
     boxTitle:'Infos zum Start', contact:[['insta','@nounnounstudio'],['mail','nounnounstudio@gmail.com']], note:'Der Shop ist noch im Aufbau. Folge uns, dann verpasst du den Start nicht.' },
@@ -2351,7 +2352,7 @@ function openFlyers(){
   const wrap=document.getElementById('flyerWrap');
   FLYER_DATA.forEach(f=>{ const cv=flyerCanvas(f,'front',0.5); cv.style.cssText='width:140px;height:197px;border-radius:6px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.45)'; const had=S.flyers.includes(f.id); const d=document.createElement('div'); d.style.textAlign='center'; d.appendChild(cv); const l=document.createElement('div'); l.className='rar'; l.textContent=had?'✓ mitgenommen':f.title; l.style.color=had?'var(--good)':'var(--muted)'; d.appendChild(l); cv.onclick=()=>openFlyer(f); wrap.appendChild(d); });
 }
-const FLYER_LINK = { cafe:'https://www.instagram.com/nounnounstudio/', shop:'https://www.instagram.com/nounnounstudio/', slab:'https://www.instagram.com/nounnounstudio/', troedel:'https://troedelradar.de' };
+const FLYER_LINK = { cafe:'https://gradingcafe.de', shop:'https://www.instagram.com/nounnounstudio/', slab:'https://www.instagram.com/nounnounstudio/', troedel:'https://troedelradar.de' };
 function openFlyer(f, side='front'){
   const had=S.flyers.includes(f.id); let cur=side, pickSel=side;
   const shareText = `${f.title}: ${f.tagline} ${FLYER_LINK[f.id]}`;
@@ -2755,14 +2756,14 @@ function showSupport(){
   <div class="moneynote">💛 ${MONEY_NOTE}</div>
   <p>Dieses Spiel ist der erste Schritt zu einem echten Café für Sammelkarten-Fans. Jeder Kaffee, den du uns spendierst, hilft beim Aufbau.</p>
   ${kofi}
-  <p>Kostenlos helfen kannst du auch, indem du uns folgst und das Spiel weitererzählst: <a href="https://www.instagram.com/nounnounstudio/" target="_blank" rel="noopener">Instagram @nounnounstudio</a></p>
+  <p>Kostenlos helfen kannst du auch, indem du uns folgst und das Spiel weitererzählst: <a href="https://gradingcafe.de" target="_blank" rel="noopener">gradingcafe.de</a> · <a href="https://www.instagram.com/gradingcafe/" target="_blank" rel="noopener">Instagram @gradingcafe</a></p>
   <div class="row"><button class="primary" data-close>Zurück</button></div>`);
 }
 const NEWS = [
   ['Gerade', 'Die Spiel-App ist in Arbeit', 'Du spielst den Prototyp. Jede Rückmeldung hilft, das Spiel und das echte Café besser zu machen.'],
   ['Geplant', 'Crowdfunding auf Startnext', 'Sobald die App öffentlich ist, startet das Crowdfunding für das echte Grading Café. Als Belohnung ist unter anderem eine eigene Community-Karte im Spiel geplant.'],
   ['Standort', 'Rothenburg ob der Tauber', 'Das Café soll in Rothenburg entstehen. Ladenfläche und Eröffnungstermin stehen noch nicht fest.'],
-  ['Folgen', 'Instagram & X', 'Neuigkeiten gibt es zuerst auf Instagram @nounnounstudio und X @NOUNNOUNStudio.']
+  ['Folgen', 'Instagram & X', 'Neuigkeiten gibt es zuerst auf gradingcafe.de und Instagram @gradingcafe.']
 ];
 function slotKey(n){ return n===1 ? 'gc_proto_v4' : 'gc_proto_v4_s'+n; }
 function showSlots(){ const info=n=>{ try { const d=JSON.parse(localStorage.getItem(slotKey(n))||'null'); if (d && d.started) return `Tag ${d.day} · Konto ${fmt(d.money||0)}${d.cards?` · ${d.cards.length} Karten`:''}`; } catch(e){} return 'leer'; };
@@ -2792,7 +2793,7 @@ function slabPhoto(c){ const W=1080, H=1350, cv=document.createElement('canvas')
   x.fillStyle='#e0a050'; x.textAlign='center'; x.font='800 30px system-ui'; if (x.letterSpacing!==undefined) x.letterSpacing='10px'; x.fillText(c.grade>=10?'GEM MINT 10':`NOTE ${c.grade}`,W/2,110); if (x.letterSpacing!==undefined) x.letterSpacing='0px';
   x.fillStyle='#fff'; x.font='800 64px Georgia,serif'; x.fillText(c.name,W/2,190); x.fillStyle='rgba(255,255,255,.7)'; x.font='500 30px system-ui'; x.fillText(`${SETS[c.set||0].name} · ${RAR[c.rar].name} · ${SETS[c.set||0].short} ${c.num}/80`,W/2,240);
   x.save(); x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=60; x.shadowOffsetY=20; const sw=560, sh=sw*1.6, sx=(W-sw)/2, sy=290; const s=document.createElement('canvas'); s.width=sw*2; s.height=sh*2; drawSlab(s,c); x.drawImage(s,sx,sy,sw,sh); x.restore();
-  x.fillStyle='#e0a050'; x.font='italic 800 52px Georgia,serif'; x.fillText('Grading Café',W/2,H-110); x.fillStyle='rgba(255,255,255,.75)'; x.font='500 26px system-ui'; x.fillText('Gegradet im Spiel · bald echt in Rothenburg ob der Tauber',W/2,H-66); x.font='600 24px system-ui'; x.fillStyle='rgba(224,160,80,.85)'; x.fillText('Instagram @nounnounstudio',W/2,H-30);
+  x.fillStyle='#e0a050'; x.font='italic 800 52px Georgia,serif'; x.fillText('Grading Café',W/2,H-110); x.fillStyle='rgba(255,255,255,.75)'; x.font='500 26px system-ui'; x.fillText('Gegradet im Spiel · bald echt in Rothenburg ob der Tauber',W/2,H-66); x.font='600 24px system-ui'; x.fillStyle='rgba(224,160,80,.85)'; x.fillText('gradingcafe.de · Instagram @gradingcafe',W/2,H-30);
   return cv; }
 async function shareSlab(c){ const cv=slabPhoto(c); const blob=await new Promise(r=>cv.toBlob(r,'image/png')); const fn=`grading-cafe-${c.name.toLowerCase().replace(/[^a-z0-9äöü]+/g,'-')}-note-${c.grade}.png`;
   try { const file=new File([blob],fn,{type:'image/png'}); if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({ files:[file], title:'Mein Slab', text:`Note ${c.grade} für ${c.name}! Gegradet im Grading Café.` }); return; } } catch(e){ if (e && e.name==='AbortError') return; }
@@ -2806,7 +2807,7 @@ function showReal(fromGame){
   openOv(`<h2>Das echte Grading Café</h2>
   <p>Dieses Spiel ist mehr als ein Spiel: Es ist der erste Blick in ein <b>echtes Café</b>, das gerade geplant wird. Ein Ort für Kaffee, Sammelkarten und Grading, mit Turnierabenden, Tauschbörse und einer Vitrine voller Slabs.</p>
   <p><b>Was dich erwartet</b><br>☕ Richtig guter Kaffee<br>🎴 Booster, Einzelkarten und gegradete Karten<br>🔍 Grading-Annahme: deine Karten, sauber eingeschickt<br>🏆 Turniere und Tauschabende</p>
-  <p><b>Sei von Anfang an dabei</b><br>Folge dem Projekt, um Eröffnung, Crowdfunding und Aktionen nicht zu verpassen: <a href="https://www.instagram.com/nounnounstudio/" target="_blank" rel="noopener">Instagram @nounnounstudio</a> · <a href="https://x.com/NOUNNOUNStudio" target="_blank" rel="noopener">X @NOUNNOUNStudio</a><br>Kontakt: <a href="mailto:nounnounstudio@gmail.com">nounnounstudio@gmail.com</a></p>
+  <p><b>Sei von Anfang an dabei</b><br>Folge dem Projekt, um Eröffnung, Crowdfunding und Aktionen nicht zu verpassen: <a href="https://gradingcafe.de" target="_blank" rel="noopener">gradingcafe.de</a> · <a href="https://www.instagram.com/gradingcafe/" target="_blank" rel="noopener">Instagram @gradingcafe</a> · <a href="https://x.com/NOUNNOUNStudio" target="_blank" rel="noopener">X @NOUNNOUNStudio</a><br>Kontakt: <a href="mailto:nounnounstudio@gmail.com">nounnounstudio@gmail.com</a></p>
   <p><b>So weit ist das echte Café</b></p><div class="ocard" style="font-size:14px;line-height:1.7">✅ Idee & Konzept<br>🔄 Spiel-App in Entwicklung (du spielst sie gerade)<br>⏳ Crowdfunding auf Startnext, sobald die App öffentlich ist<br>⏳ Ladenfläche & Umbau<br>⏳ Eröffnung in Rothenburg ob der Tauber</div>
   <div class="moneynote">💛 ${MONEY_NOTE}</div>
   ${S.codeFound ? `<p>Dein Gründer-Code von der Gründerkarte:</p><div class="codebox">${SECRET_CODE}</div>` : `<p>🔎 <b>Tipp:</b> Im Spiel-Café ist die <b>Gründerkarte</b> versteckt. Ihr Gründer-Code ist für das echte Café gedacht (Aktion in Planung).</p>`}
