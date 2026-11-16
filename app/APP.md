@@ -1,6 +1,6 @@
 # Grading Café – App (Android & iOS)
 
-Gebaut mit **Capacitor 6**. Der App-Inhalt ist das Spiel aus `../spiel/` (wird beim Sync nach `www/` kopiert).
+Gebaut mit **Capacitor 8** (Android-Ziel-API 36, iOS mit Swift Package Manager, nur iPhone). Der App-Inhalt ist das Spiel aus `../spiel/` (wird beim Sync nach `www/` kopiert).
 
 ## Wichtige Daten (für jedes Update gleich lassen!)
 
@@ -13,7 +13,10 @@ Gebaut mit **Capacitor 6**. Der App-Inhalt ist das Spiel aus `../spiel/` (wird b
 | Icons & Splash (Quelle) | `app/assets/` → neu erzeugen mit `npm run assets` |
 | Ausrichtung | fest Hochformat (AndroidManifest + Info.plist) |
 | Zurück-Taste | Android-Zurück → Browser-Verlauf (`zurueck.js`), auf der Startseite beendet sie die App |
-| Signatur-Schlüssel (Android) | **noch anlegen** – Datei `grading-cafe.keystore` + Passwörter sicher aufbewahren, NIE ins Repo |
+| Signatur-Schlüssel (Android) | `grading-cafe-upload.jks`, Alias `upload` – liegt NICHT im Repo (öffentlich!). Bei Jason gespeichert + in Codemagic als Keystore `grading_cafe_upload` |
+| Builds | Codemagic, Datei `codemagic.yaml` im Repo-Hauptordner: Workflows `android-release` (AAB) und `ios-release` (IPA → App Store Connect, API-Schlüssel „Kratzbaum ASC“) |
+| Versionsnummer | `VERSION_NAME` in `codemagic.yaml`; Build-Nummer zählt Codemagic automatisch hoch |
+| Store-Name | Grading Café: Karten & Kaffee (kostenlos, ohne Werbung, Ko-fi nur im Web) |
 
 ## Ablauf bei einem Spiel-Update
 

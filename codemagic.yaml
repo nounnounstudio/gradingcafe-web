@@ -1,0 +1,61 @@
+# Grading Café – App-Builds (Capacitor 8) für Google Play und App Store
+# Spiel-Quelle: spiel/index.html  ·  App-Projekt: app/
+workflows:
+  android-release:
+    name: Grading Café Android
+    instance_type: linux_x2
+    max_build_duration: 45
+    environment:
+      android_signing:
+        - grading_cafe_upload        # Keystore in Codemagic: Team settings → Code signing identities → Android keystores
+      node: 22
+      java: 21
+      vars:
+        VERSION_NAME: "1.0.0"
+    scripts:
+      - name: Abhängigkeiten
+        script: cd app && npm ci
+      - name: Spiel in die App kopieren
+        script: cd app && npm run www && npx cap sync android
+      - name: App-Bundle bauen (signiert)
+        script: |
+          cd app/android
+          chmod +x gradlew
+          ./gradlew bundleRelease -Pvc=$((BUILD_NUMBER + 1)) -Pvn=$VERSION_NAME
+    artifacts:
+      - app/android/app/build/outputs/bundle/release/*.aab
+
+  ios-release:
+    name: Grading Café iOS
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: Kratzbaum ASC   # vorhandener App-Store-Connect-API-Schlüssel (gilt fürs ganze Apple-Konto)
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: de.gradingcafe.spiel
+      node: 22
+      xcode: latest
+      vars:
+        VERSION_NAME: "1.0.0"
+    scripts:
+      - name: Abhängigkeiten
+        script: cd app && npm ci
+      - name: Spiel in die App kopieren
+        script: cd app && npm run www && npx cap sync ios
+      - name: Signatur einrichten
+        script: xcode-project use-profiles
+      - name: Versionsnummer
+        script: |
+          cd app/ios/App
+          agvtool new-marketing-version $VERSION_NAME
+          agvtool new-version -all $((BUILD_NUMBER + 1))
+      - name: IPA bauen
+        script: xcode-project build-ipa --project app/ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
