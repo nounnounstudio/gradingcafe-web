@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<link rel="icon" href="../media/icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#120d0a">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Grading Café – Prototyp</title>
@@ -220,7 +223,7 @@
     <div class="dot"></div>
     <div><b>Dieses Café gibt es bald wirklich.</b><small>Das echte Grading Café ist in Planung. Erfahre mehr und sei von Anfang an dabei →</small></div>
   </div>
-  <div class="mfoot"><span>Prototyp · NOUN Studio · <a href="#" id="mImp" style="color:inherit">Impressum</a></span><span>v2.3</span></div>
+  <div class="mfoot"><span>NOUN Studio · <a href="#" id="mImp" style="color:inherit">Impressum</a> · <a href="#" id="mPriv" style="color:inherit">Datenschutz</a></span><span>v2.4</span></div>
 </div>
 
 <div id="dayCard"></div><div id="fps" style="position:fixed;left:8px;bottom:8px;z-index:20;font:600 12px system-ui;color:#fff;background:rgba(0,0,0,.5);padding:3px 7px;border-radius:6px;display:none;pointer-events:none"></div>
@@ -303,8 +306,9 @@ let SLOT=1; try { SLOT=+(localStorage.getItem('gc_slot')||1)||1; } catch(e){}
 const SAVE_KEY = SLOT===1 ? 'gc_proto_v4' : 'gc_proto_v4_s'+SLOT;
 function freshState(){ return { cups:24, dirty:[0,0,0], dw:{load:0}, shelfSets:{0:12}, lagerSets:{0:36}, sealed:{tin:2,blister:4,etb:1}, lagerSealed:{}, preorders:[], preDisplays:[], tut:0, cash:150, tipJar:0, econV:2, vatOut:0, vatIn:0, dayVat19:0, dayVat7:0, dayBons:0, bonNo:0, weekRev:0, day:1, minute:OPEN_H*60, money:1500, rep:0, open:false, cards:[], showcase:[], grading:[], nextId:1, dayIn:0, dayOut:0, stockBoosters:12, stockCoffee:25, stockDrinks:12, stockFood:10, stockAcc:6, lager:{ boosters:36, coffee:40, drinks:24, food:0, acc:0 }, online:false, bench:null, shopOpen:false, shopListings:{ boosters:{ stock:0, price:5.5 } }, shopHistory:[], reviews:[], orderNo:1001, shopRevenue:0, orders:[], parcels:[], flyers:[], pickedDay:0, codeFound:false, started:false }; }
 const S = freshState();
-function save(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch(e){} }
-function load(){ try { const d = JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if (d && d.cards){ Object.assign(S, d, { open:false }); S.lager = Object.assign({boosters:0,coffee:0,drinks:0,food:0,acc:0}, d.lager||{}); if (S.stockFood==null) S.stockFood=10; if (S.stockAcc==null) S.stockAcc=6; } } catch(e){} }
+const SAVE_VER = 24;
+function save(){ try { S.saveVer=SAVE_VER; S.savedAt=Date.now(); const js=JSON.stringify(S); const old=localStorage.getItem(SAVE_KEY); if (old && old.length>50) localStorage.setItem(SAVE_KEY+'_bak', old); localStorage.setItem(SAVE_KEY, js); } catch(e){ if (!save._warned){ save._warned=true; setTimeout(()=>{ try{ toast('Speichern nicht möglich: Der Speicher deines Browsers ist voll oder gesperrt.','bad'); }catch(_){} },0); } } }
+function load(){ try { let d=null; try { d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); } catch(e){ d=null; } if (!d || !d.cards){ try { const b=JSON.parse(localStorage.getItem(SAVE_KEY+'_bak')||'null'); if (b && b.cards) d=b; } catch(e){} } if (d && d.cards){ Object.assign(S, d, { open:false }); S.lager = Object.assign({boosters:0,coffee:0,drinks:0,food:0,acc:0}, d.lager||{}); if (S.stockFood==null) S.stockFood=10; if (S.stockAcc==null) S.stockAcc=6; } } catch(e){} }
 load();
 const SET = { quality: null, sens: 1, bob: true, orient: 'hoch' };
 try { Object.assign(SET, JSON.parse(localStorage.getItem('gc_settings')||'{}')); } catch(e){}
@@ -1119,7 +1123,7 @@ function cozy(){ let g=0; (S.decor||[]).forEach(d=>{ const D=DECO[d.type]; if (!
 const decoObjs=[]; let carryD=null;
 function spawnDeco(d){ const G=buildDeco(d.type); G.position.set(d.x,0,d.z); G.rotation.y=d.r||0; scene.add(G); const D=DECO[d.type]; const w = D.r>0 ? [d.x-D.r,d.x+D.r,d.z-D.r,d.z+D.r] : [100,100,100,100]; walls.push(w);
   const hit=box(Math.max(0.5,D.r*2),D.r>0?1.0:0.06,Math.max(0.5,D.r*2),new THREE.MeshBasicMaterial({visible:false}),0,D.r>0?0.5:0.03,0,G); hit.castShadow=false;
-  const it={ obj:G, label:()=> carryD||carryT ? '' : `${D.n}: verschieben`, use:()=>pickDeco(d) }; G.traverse(o=>o.userData.inter=it); interactables.push(it); decoObjs.push({ d, G, w, it }); return decoObjs[decoObjs.length-1]; }
+  const it={ id:'deco:'+(d.uid||(d.uid='d'+Date.now().toString(36)+Math.floor(Math.random()*1e4))), obj:G, label:()=> carryD||carryT ? '' : `${D.n}: verschieben`, use:()=>pickDeco(d) }; G.traverse(o=>o.userData.inter=it); interactables.push(it); decoObjs.push({ d, G, w, it }); return decoObjs[decoObjs.length-1]; }
 function removeDecoObj(o){ scene.remove(o.G); o.w[0]=o.w[1]=o.w[2]=o.w[3]=100; const i=interactables.indexOf(o.it); if (i>=0) interactables.splice(i,1); decoObjs.splice(decoObjs.indexOf(o),1); }
 function pickDeco(d){ if (P.held){ toast('Erst die Hände frei machen.'); return; } const o=decoObjs.find(x=>x.d===d); if (!o) return; S.decor=S.decor.filter(x=>x!==d); removeDecoObj(o); startCarryDeco(d.type); }
 function startCarryDeco(type){ const G=buildDeco(type); G.traverse(o=>{ if (o.material){ o.material=o.material.clone(); o.material.transparent=true; o.material.opacity=0.7; } }); scene.add(G); carryD={ type, G, rot:0 }; toast(`${DECO[type].n}: Lauf an die Stelle und tippe „Benutzen“ zum Aufstellen. ${isTouch()?'':'Q = zurück ins Lager.'}`); }
@@ -1704,7 +1708,8 @@ function updateCourier(dt){
 walls.push([5.2,5.74,-2.55,-0.65]); // Versandregal
 
 // ================= Spieler =================
-const P = { x:-1.2, z:3.0, yaw:0, pitch:-0.05, held:null };
+let P = { id:'p1', name:'Du', x:-1.2, z:3.0, yaw:0, pitch:-0.05, held:null };
+const PLAYERS = { p1:P }; let LOCAL_ID = 'p1'; const LOCALP = ()=>PLAYERS[LOCAL_ID];
 const keys = {};
 let locked = false, paused = true, mode = 'menu';
 const heldGroup = new THREE.Group(); camera.add(heldGroup); heldGroup.position.set(0.22,-0.22,-0.45);
@@ -1712,7 +1717,7 @@ let heldMesh = null;
 const CARTON_INFO = { sealed:{ name:'Karton versiegelte Ware', unit:12, to:'Booster-Regal', col:0x8a1a3a }, boosters:{ name:'Booster-Display', unit:36, to:'Booster-Regal', col:0x2a50b0 }, coffee:{ name:'Kaffee- und Milchpaket', unit:40, to:'Kaffeemaschine', col:0x6a3a1a }, drinks:{ name:'Getränke-Tray', unit:24, to:'Getränkekühler', col:0x1a1a1a }, food:{ name:'Kuchen-Karton', unit:20, to:'Kuchenvitrine', col:0xe8c0a0 }, acc:{ name:'Zubehör-Karton', unit:12, to:'Zubehör-Ständer', col:0x2a50b0 } };
 function makeCan(id){ const g=makeDrink(id==='mate'?'mate':'energy'); g.position.y=-0.06; const w=new THREE.Group(); w.add(g); return w; }
 function heldName(h){ if (h.kind==='dishes') return `Geschirr (${h.n})`; if (h.kind==='sealed') return SEALED[h.item].short; if (h.kind==='booster' && h.set!=null) return `${h.n||1}× Booster ${SETS[h.set].name}`; if (h.kind==='cashbag') return `Geldtasche (${fmt(h.amt)})`; if (h.kind==='single'){ const k=S.cards.find(x=>x.id===h.cardId); return k?`Karte „${k.name}“`:'Karte'; } return h.kind==='cup' ? DRINKS[h.drink].name : h.kind==='booster' ? `${h.n||1}× Booster` : h.kind==='can' ? COLD[h.drink].name : h.kind==='food' ? FOOD[h.item].name : h.kind==='acc' ? ACC[h.item].short : h.kind==='supply' ? SUPPLY[h.what].name : h.kind==='parcel' ? `Paket #${h.no}` : CARTON_INFO[h.what].name; }
-function setHeld(h){ P.held = h; if (heldMesh){ heldGroup.remove(heldMesh); heldMesh=null; }
+function setHeld(h){ P.held = h; if (P!==LOCALP()){ if (typeof Coop!=='undefined') Coop.heldChanged(P); return; } if (heldMesh){ heldGroup.remove(heldMesh); heldMesh=null; }
   if (h && h.kind==='cup'){ heldMesh = makeCup(heldGroup); heldMesh.scale.setScalar(1.3); heldMesh.userData.coffee.material = drinkSurface(h.drink); }
   if (h && h.kind==='booster'){ heldMesh = new THREE.Group(); heldGroup.add(heldMesh); const n=Math.min(h.n||1,5); for (let i=0;i<n;i++){ const p=makePack(((h.v||0)+i)%4, heldMesh); p.scale.setScalar(1.15); p.position.set(-0.03*(n-1)/2+i*0.03,0,-i*0.008); p.rotation.set(0.15,-0.35,0.08+(i-(n-1)/2)*0.12); } }
   if (h && h.kind==='food'){ heldMesh = new THREE.Group(); heldGroup.add(heldMesh); cyl(0.08,0.075,0.008,cupRes().porc,0,-0.05,0,24,heldMesh); if (h.item==='cookie'){ cyl(0.045,0.045,0.012,cookieMat,0,-0.04,0,16,heldMesh); for (let i=0;i<5;i++) cyl(0.007,0.007,0.004,chocoChip,rnd(-.03,.03),-0.033,rnd(-.03,.03),6,heldMesh); } else { const sl=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.05,12,1,false,0,0.9),new THREE.MeshStandardMaterial({color:h.item==='kaese'?0xf2e2b8:0x4a2414,roughness:.8})); sl.position.set(-0.02,-0.02,-0.02); heldMesh.add(sl); } heldMesh.rotation.x=0.4; }
@@ -1743,7 +1748,7 @@ const customers = []; let spawnTimer = 3, browseTimer = 14;
 const DOOR_IN = [0.35,2.4], DOOR_OUT = [0.35,5.9]; // außerhalb des Schwenkbereichs der Tür
 const QUEUE = [ [-2.6,-1.05], [-2.0,0.0], [-1.4,0.9], [-0.8,1.75] ];
 const BROWSE = [3.3,0.4];
-function makePerson(hue){
+function makePerson(hue){ const _hue=hue;
   const g = new THREE.Group();
   const shirt = new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(hue,.45,.42), roughness:.8});
   const pants = new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(.6+Math.random()*.1,.25,.15+Math.random()*.15), roughness:.85});
@@ -1758,12 +1763,13 @@ function makePerson(hue){
   const hair = new THREE.Mesh(new THREE.SphereGeometry(0.148,18,12,0,Math.PI*2,0,Math.PI*0.55), new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(Math.random()*.1,.5,.08+Math.random()*.3), roughness:.9})); hair.position.y=1.66; hair.rotation.x=-0.25; g.add(hair);
   for (const s of [-1,1]){ const e=new THREE.Mesh(new THREE.SphereGeometry(0.018,8,6), M.black); e.position.set(s*0.05,1.65,0.125); g.add(e); }
   g.userData.legs=legs; g.userData.arms=arms;
-  return g;
+  g.userData.hue=_hue; return g;
 }
 function animWalk(g, t, moving){ const a = moving ? Math.sin(t*8)*0.5 : 0; const L=g.userData.legs, A=g.userData.arms; if (!L) return; L[0].rotation.x=a; L[1].rotation.x=-a; A[0].rotation.x=-a*0.8; A[1].rotation.x=a*0.8; }
 const clerk = makePerson(0.6); clerk.position.copy(clerkSpot); clerk.rotation.y=Math.PI; scene.add(clerk);
 box(0.36,0.62,0.02,new THREE.MeshStandardMaterial({color:0x163a63}),0,1.0,0.19,clerk);
 function bubbleTex(){ const cv=document.createElement('canvas'); cv.width=256; cv.height=96; const t=new THREE.CanvasTexture(cv); t.encoding=THREE.sRGBEncoding; return {cv,t}; }
+let CUST_SEQ = 0;
 function makeCustomer(type){
   const g = makePerson(Math.random());
   const b = bubbleTex(); const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:b.t, depthTest:false})); sp.scale.set(0.6,0.225,1); sp.position.y=2.05; sp.visible=false; sp.raycast=()=>{}; sp.renderOrder=10; g.add(sp);
@@ -1777,7 +1783,7 @@ function makeCustomer(type){
   let extra=null; if (type==='coffee'){ if (DRINKS[order] && Math.random()<0.3) extra=pick(['kaese','schoko','cookie','cookie']); else if (order==='booster' && Math.random()<0.15) extra='sleeves'; }
   let regular=null, cname=pick(['Mia','Ben','Lea','Finn','Emma','Paul','Lina','Noah','Ida','Tom','Mara','Jonas','Ella','Leon','Sophie','Elias','Hanna','Luis','Clara','Max','Nele','Karl','Frieda','Oskar'])+' '+pick('ABDFGHKLMNPRSTW'.split(''))+'.';
   if (type==='coffee' && S.regulars){ const cand=S.regulars.filter(r=>r.visits>=1 && !customers.some(k=>k.name===r.name)); if (cand.length && Math.random()<(S.upg&&S.upg.stamp?0.45:0.3)){ regular=pick(cand); cname=regular.name; if (Math.random()<0.75 && regular.fav){ order=regular.fav; qty=order==='booster'?1:1; } } else if (order){ regular={ name:cname, fav:order, visits:0 }; S.regulars.push(regular); if (S.regulars.length>45){ const i=S.regulars.findIndex(r=>r.visits<2); if (i>=0) S.regulars.splice(i,1); } } }
-  const c = { g, sp, b, type, state:'walk', path:[[0,rnd(6,7.5)],DOOR_OUT,DOOR_IN], exitX:sx, order, qty, extra, regular, bset, patience:42, maxPat:42, slot:-1, look:0, t:Math.random()*5, name:cname };
+  const c = { uid:'c'+(++CUST_SEQ), hue:g.userData.hue, g, sp, b, type, state:'walk', path:[[0,rnd(6,7.5)],DOOR_OUT,DOOR_IN], exitX:sx, order, qty, extra, regular, bset, patience:42, maxPat:42, slot:-1, look:0, t:Math.random()*5, name:cname };
   g.traverse(o=>{ o.userData.customer = c; });
   customers.push(c); return c;
 }
@@ -2142,9 +2148,69 @@ const interactables = [
   { obj:slabFrames[1], label:()=> 'Hinter diesem Slab steckt etwas…', use:foundCode }
 ];
 CHAIRS.forEach(ch=>interactables.unshift({ obj:ch.g, label:()=>'Hinsetzen', use:()=>sitOn(ch) }));
-interactables.forEach(it=>it.obj.traverse(o=>{ o.userData.inter = it; }));
+interactables.forEach((it,i)=>{ if (!it.id) it.id='i'+i; it.obj.traverse(o=>{ o.userData.inter = it; }); });
 { const li = interactables.find(i=>i.obj===laptop); laptop.traverse(o=>{ o.userData.inter = li; }); }
 { const it = interactables[interactables.length-1]; slabInners[1].userData.inter = it; interactables.push({ obj:slabInners[1], label:it.label, use:foundCode }); }
+
+// ================= KOOP-GRUNDLAGE =================
+// Alle Spieler-Aktionen laufen über act(). Solo: sofort ausführen. Später im Koop:
+// Host führt aus und verteilt den Zustand, Clients schicken nur ihre Aktion an den Host.
+const ACTIONS = {
+  use(d){ const t=findTarget(d.tid); if (t && t.use) t.use(); },
+  drop(){ dropNow(); }
+};
+function findTarget(tid){ if (!tid) return null;
+  if (tid.startsWith('cust:')){ const c=customers.find(k=>k.uid===tid.slice(5)); if (!c) return null;
+    if (c.type==='coffee' && c.state==='wait') return { use:()=>serve(c) };
+    if (c.state==='pay' && c.method==='cash') return { use:()=>openChange(c) }; return null; }
+  return interactables.find(i=>i.id===tid) || null; }
+function withPlayer(pid, fn){ const prev=P; const pl=PLAYERS[pid]; if (!pl) return; P=pl; try { return fn(); } finally { P=prev; } }
+function runAction(type, data, pid){ const f=ACTIONS[type]; if (!f) return; withPlayer(pid||LOCAL_ID, ()=>f(data||{}, pid||LOCAL_ID)); }
+function act(type, data){ if (Coop.role==='client'){ Coop.send({ t:'act', type, data, pid:LOCAL_ID }); return; } runAction(type, data, LOCAL_ID); }
+
+const Coop = {
+  role:'solo',            // 'solo' | 'host' | 'client'
+  transport:null,         // später: WebSocket/WebRTC-Adapter mit send(obj) und onmessage
+  maxPlayers:4, snapT:0, avatars:{},
+  // Transport anschließen (z. B. Coop.attach(new WebSocketAdapter(url)) – siehe KOOP.md)
+  attach(t, role){ this.transport=t; this.role=role; t.onmessage=(m)=>this.receive(m); },
+  send(msg){ if (this.transport) this.transport.send(msg); },
+  receive(m){
+    if (m.t==='act' && this.role==='host'){ if (!PLAYERS[m.pid]) this.addPlayer(m.pid); runAction(m.type, m.data, m.pid); }
+    else if (m.t==='move' && this.role==='host'){ const pl=PLAYERS[m.pid]||this.addPlayer(m.pid); Object.assign(pl, { x:m.x, z:m.z, yaw:m.yaw, pitch:m.pitch }); }
+    else if (m.t==='snap' && this.role==='client') this.applySnapshot(m.snap);
+    else if (m.t==='hello' && this.role==='host'){ this.addPlayer(m.pid, m.name); this.send({ t:'snap', snap:this.snapshot() }); }
+  },
+  addPlayer(pid, name){ if (PLAYERS[pid]) return PLAYERS[pid]; if (Object.keys(PLAYERS).length>=this.maxPlayers) return null;
+    const pl={ id:pid, name:name||('Spieler '+(Object.keys(PLAYERS).length+1)), x:-1.2, z:3.0, yaw:0, pitch:0, held:null }; PLAYERS[pid]=pl; return pl; },
+  removePlayer(pid){ if (pid===LOCAL_ID) return; delete PLAYERS[pid]; const a=this.avatars[pid]; if (a){ scene.remove(a); delete this.avatars[pid]; } },
+  heldChanged(pl){ /* später: Gegenstand in der Hand des Avatars anzeigen */ },
+  // Zustand für das Netz (Spielstand + Spieler + sichtbare Kunden)
+  snapshot(){ return { S:JSON.parse(JSON.stringify(S)),
+    players:Object.values(PLAYERS).map(p=>({ id:p.id, name:p.name, x:p.x, z:p.z, yaw:p.yaw, pitch:p.pitch, held:p.held })),
+    customers:customers.filter(c=>c.state!=='gone').map(c=>({ uid:c.uid, hue:c.hue, type:c.type, state:c.state, name:c.name, order:c.order, x:c.g.position.x, z:c.g.position.z, ry:c.g.rotation.y })) }; },
+  applySnapshot(sn){ Object.assign(S, sn.S); refreshAllVis();
+    sn.players.forEach(p=>{ if (p.id===LOCAL_ID){ LOCALP().held=p.held; return; } const pl=PLAYERS[p.id]||this.addPlayer(p.id,p.name); if (pl) Object.assign(pl,p); });
+    Object.keys(PLAYERS).forEach(id=>{ if (!sn.players.some(p=>p.id===id)) this.removePlayer(id); });
+    const seen=new Set(); sn.customers.forEach(k=>{ seen.add(k.uid); let c=customers.find(x=>x.uid===k.uid);
+      if (!c){ const g=makePerson(k.hue||0.5); scene.add(g); c={ uid:k.uid, g, remote:true }; g.traverse(o=>{ o.userData.customer=c; }); customers.push(c); }
+      Object.assign(c,{ type:k.type, state:k.state, name:k.name, order:k.order }); c.tx=k.x; c.tz=k.z; c.g.rotation.y=k.ry; });
+    customers.slice().forEach(c=>{ if (c.remote && !seen.has(c.uid)){ scene.remove(c.g); customers.splice(customers.indexOf(c),1); } }); },
+  // jedes Bild: Avatare der anderen Spieler zeichnen, Host verteilt 5× pro Sekunde den Zustand
+  update(dt){
+    if (this.role==='solo') return;
+    Object.values(PLAYERS).forEach(pl=>{ if (pl.id===LOCAL_ID) return; let a=this.avatars[pl.id];
+      if (!a){ a=makePerson(0.15+0.2*Object.keys(this.avatars).length); scene.add(a); this.avatars[pl.id]=a; }
+      const k=Math.min(1,dt*10), px=a.position.x, pz=a.position.z; a.position.x+=(pl.x-px)*k; a.position.z+=(pl.z-pz)*k; a.rotation.y=pl.yaw+Math.PI;
+      animWalk(a, performance.now()/1000, Math.hypot(pl.x-px,pl.z-pz)>0.01); });
+    if (this.role==='client'){ customers.forEach(c=>{ if (c.remote && c.tx!=null){ c.g.position.x+=(c.tx-c.g.position.x)*Math.min(1,dt*8); c.g.position.z+=(c.tz-c.g.position.z)*Math.min(1,dt*8); } });
+      const me=LOCALP(); this.send({ t:'move', pid:LOCAL_ID, x:me.x, z:me.z, yaw:me.yaw, pitch:me.pitch }); }
+    if (this.role==='host'){ this.snapT-=dt; if (this.snapT<=0){ this.snapT=0.2; this.send({ t:'snap', snap:this.snapshot() }); } }
+  }
+};
+function refreshAllVis(){ try { updateShelf(); updateCase(); updateFridge(); updateLager(); updateParcels(); updateLaptopScreen(); updateBench(); updateFoodVis(); updateAccVis(); drawSign(); updateSchrank(); updateTips(); updateSealedVis(); updateDirty(); drawDw(); } catch(e){} }
+// Test-Hilfe: zweiter Spieler im selben Gerät (nur zum Prüfen der Koop-Logik)
+const CoopTest = { add(){ return Coop.addPlayer('p2','Testspieler'); }, run(type,data){ runAction(type,data,'p2'); return PLAYERS.p2; } };
 let focus = null, lastLabel = '';
 const hintEl = document.getElementById('hint'), crossEl = document.getElementById('cross');
 function updateFocus(){
@@ -2153,14 +2219,15 @@ function updateFocus(){
   const objs = interactables.map(i=>i.obj); customers.forEach(c=>{ if (c.state!=='gone') objs.push(c.g); });
   const hit = ray.intersectObjects(objs, true)[0];
   focus = null; let label = '';
-  if (hit){ const o = hit.object; if (o.userData.customer){ const c=o.userData.customer; if (c.type==='coffee' && c.state==='wait'){ focus = { use:()=>serve(c) }; label = P.held && ['cup','booster','can','food','acc'].includes(P.held.kind) ? `${heldName(P.held)} an ${c.name} geben` : `${c.name}: ${orderName(c)}`; } else if (c.state==='pay' && c.method==='cash'){ focus={ use:()=>openChange(c) }; label=`Geld von ${c.name} nehmen (${fmt(c.given)})`; } else if (c.state==='pay'){ label = c.method==='card' ? `${c.name} wartet am Kartenterminal` : `${c.name} hat ${fmt(c.given)} auf den Tresen gelegt`; } else if (c.type==='browse' && c.state==='look'){ label = `${c.name} schaut sich die Vitrine an`; } }
+  if (hit){ const o = hit.object; if (o.userData.customer){ const c=o.userData.customer; if (c.type==='coffee' && c.state==='wait'){ focus = { tid:'cust:'+c.uid, use:()=>serve(c) }; label = P.held && ['cup','booster','can','food','acc'].includes(P.held.kind) ? `${heldName(P.held)} an ${c.name} geben` : `${c.name}: ${orderName(c)}`; } else if (c.state==='pay' && c.method==='cash'){ focus={ tid:'cust:'+c.uid, use:()=>openChange(c) }; label=`Geld von ${c.name} nehmen (${fmt(c.given)})`; } else if (c.state==='pay'){ label = c.method==='card' ? `${c.name} wartet am Kartenterminal` : `${c.name} hat ${fmt(c.given)} auf den Tresen gelegt`; } else if (c.type==='browse' && c.state==='look'){ label = `${c.name} schaut sich die Vitrine an`; } }
     else if (o.userData.inter){ focus = o.userData.inter; label = focus.label(); } }
   if (label !== lastLabel){ lastLabel = label; if (label){ hintEl.style.display='block'; hintEl.textContent = label + (isTouch()? '' : ' [E]'); crossEl.classList.add('on'); } else { hintEl.style.display='none'; crossEl.classList.remove('on'); } }
 }
 function sitOn(ch){ if (P.held && P.held.kind==='carton'){ toast('Mit dem Karton kannst du dich nicht hinsetzen.'); return; } const dx=ch.tx-ch.x, dz=ch.tz-ch.z, d=Math.hypot(dx,dz)||1; P.seat={ ch, back:[P.x,P.z] }; P.x=ch.x+dx/d*0.05; P.z=ch.z+dz/d*0.05; P.yaw=Math.atan2(-dx,-dz); P.pitch=-0.2; toast(isTouch()?'Du sitzt. Laufen oder „Benutzen“ zum Aufstehen.':'Du sitzt. Laufen oder E zum Aufstehen.'); }
 function standUp(){ if (!P.seat) return; const ch=P.seat.ch, dx=ch.x-ch.tx, dz=ch.z-ch.tz, d=Math.hypot(dx,dz)||1; P.seat=null; [P.x,P.z]=collide(ch.x+dx/d*0.55, ch.z+dz/d*0.55); }
-function use(){ if (paused) return; if (carryD){ placeDeco(); return; } if (carryT){ placeTable(); return; } if (P.seat){ standUp(); return; } if (focus && focus.use) focus.use(); }
-function drop(){ if (stashDeco()) return; if (!P.held) return; const h=P.held;
+function use(){ if (paused) return; if (carryD){ placeDeco(); return; } if (carryT){ placeTable(); return; } if (P.seat){ standUp(); return; } if (focus) act('use',{ tid:focus.tid||focus.id }); }
+function drop(){ if (stashDeco()) return; if (!P.held) return; act('drop'); }
+function dropNow(){ if (!P.held) return; const h=P.held;
   if (h.kind==='cup'){ toast('Getränk weggeschüttet.'); setHeld(null); }
   else if (h.kind==='sealed'){ S.sealed[h.item]++; updateSealedVis(); setHeld(null); toast('Zurück ins Regal gestellt.'); }
   else if (h.kind==='booster'){ shelfAdd(h.set||0,(h.n||1)); setHeld(null); toast(`${h.n||1} Booster zurück ins Regal gelegt.`); }
@@ -2444,7 +2511,12 @@ function foundCode(){
 // ================= Overlays =================
 const ov = document.getElementById('ov'), ovPanel = document.getElementById('ovPanel');
 let ovReturn = null;
-function openOv(html){ ovPanel.innerHTML = html; ov.classList.add('show'); paused = true; if (document.pointerLockElement) document.exitPointerLock(); ovPanel.scrollTop=0; ovPanel.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeOv); }
+// Koop: Klicks in einem Fenster wirken für den Spieler, der das Fenster geöffnet hat
+let _ovPrevP=null;
+ovPanel.addEventListener('click',()=>{ const a=PLAYERS[ovActor]; if (a && a!==P){ _ovPrevP=P; P=a; } }, true);
+ovPanel.addEventListener('click',()=>{ if (_ovPrevP){ P=_ovPrevP; _ovPrevP=null; } }, false);
+let ovActor='p1';
+function openOv(html){ ovActor=P.id||LOCAL_ID; ovPanel.innerHTML = html; ov.classList.add('show'); paused = true; if (document.pointerLockElement) document.exitPointerLock(); ovPanel.scrollTop=0; ovPanel.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeOv); }
 function closeOv(){ ov.classList.remove('show'); if (laptopActive){ laptopActive=false; lidTarget=1.56; } if (ovReturn){ const f=ovReturn; ovReturn=null; f(); return; } if (mode==='play'){ paused = false; lockLater(); } }
 function lockLater(){ if (!isTouch() && mode==='play'){ try { const p = canvas.requestPointerLock && canvas.requestPointerLock(); if (p && p.catch) p.catch(()=>{}); } catch(e){} } }
 function toast(msg, kind=''){ const t=document.createElement('div'); t.className='toast '+kind; t.textContent=msg; const box=document.getElementById('toasts'); box.appendChild(t); while (box.children.length>3) box.firstChild.remove(); setTimeout(()=>t.remove(), 3800); }
@@ -2738,13 +2810,22 @@ function startPlay(fresh){
   mode='play'; paused=false; document.body.classList.remove('menu'); lockLater();
   if (fresh || S.day===1 && S.dayIn===0) toast(`${dateTxt()}: Startkapital ${fmt(1500)} aus dem Crowdfunding. Laden öffnest du am Leuchtschild im Fenster oder an der Tür.`);
 }
+function showPrivacy(){
+  openOv(`<h2>Datenschutz</h2>
+  <p><b>Kurz gesagt:</b> Das Spiel sammelt keine persönlichen Daten, hat kein Konto, keine Werbung und kein Tracking.</p>
+  <p><b>Was gespeichert wird:</b> Dein Spielstand, deine Einstellungen und freigeschaltete Belohnungscodes – nur auf deinem Gerät (im Speicher des Browsers bzw. der App). Löschst du die App oder die Website-Daten, ist auch der Spielstand weg. Über „Spielstände & Sicherung“ kannst du ihn als Datei sichern.</p>
+  <p><b>Internet:</b> Das Spiel funktioniert nach dem Laden ohne Internet. Externe Seiten (Instagram, Ko-fi, gradingcafe.de) werden nur geöffnet, wenn du selbst auf einen Link tippst; dann gelten deren Datenschutzbestimmungen.</p>
+  <p><b>Verantwortlich:</b> Jason Wühr · NOUN Studio, Milchmarkt 6, 91541 Rothenburg ob der Tauber, gradingcafecontact@gmail.com</p>
+  <p>Die vollständige Datenschutzerklärung findest du auf <a href="https://gradingcafe.de/#datenschutz" target="_blank" rel="noopener">gradingcafe.de</a>.</p>
+  <div class="row"><button class="primary" data-close>Zurück</button></div>`);
+}
 function showImpressum(){
   openOv(`<h2>Impressum</h2>
   <p><b>Angaben gemäß § 5 DDG</b><br>NOUN Studio<br>Jason Wühr<br>Milchmarkt 6<br>91541 Rothenburg ob der Tauber<br>Deutschland</p>
-  <p><b>Kontakt</b><br>E-Mail: <a href="mailto:nounnounstudio@gmail.com">nounnounstudio@gmail.com</a></p>
+  <p><b>Kontakt</b><br>E-Mail: <a href="mailto:gradingcafecontact@gmail.com">gradingcafecontact@gmail.com</a><br>Web: <a href="https://gradingcafe.de" target="_blank" rel="noopener">gradingcafe.de</a></p>
   <p><b>Verantwortlich für den Inhalt</b><br>Jason Wühr, Anschrift wie oben</p>
-  <p style="color:var(--muted);font-size:13px">„Grading Café“, „Slabhaus“ und „Trödelradar“ sind Projekte von NOUN Studio. Alle Kartennamen, Marken und Getränke im Spiel sind frei erfunden.</p>
-  <div class="row"><button class="primary" data-close>Zurück</button></div>`);
+  <p style="color:var(--muted);font-size:13px">„Grading Café“ ist ein Projekt von NOUN Studio. Alle Kartennamen, Sets und Figuren im Spiel sind frei erfunden und stehen in keiner Verbindung zu echten Sammelkartenspielen oder Grading-Diensten.</p>
+  <div class="row"><button class="primary" data-close>Zurück</button><button id="impPriv">Datenschutz</button></div>`); const ip=document.getElementById('impPriv'); if (ip) ip.onclick=()=>{ const back=ovPanel.querySelector('[data-close]').onclick; showPrivacy(); if (back) ovPanel.querySelector('[data-close]').onclick=back; };
 }
 // ---------- Unterstützen & Transparenz ----------
 const KOFI_URL = 'https://ko-fi.com/gradingcafede'; // Ko-fi des Grading Café
@@ -2828,7 +2909,7 @@ function showSettings(){
   <p style="margin-top:12px"><label><input type="checkbox" id="bob" ${SET.bob?'checked':''}> Kopfbewegung beim Laufen</label><br><label><input type="checkbox" id="fpsT" ${SET.fps?'checked':''}> Bilder pro Sekunde (FPS) anzeigen</label></p>
   <div class="row" style="margin-top:8px"><button class="primary" data-close>Fertig</button></div>`);
   ovPanel.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{ SET.orient=b.dataset.o; saveSet(); lockOrientation(SET.orient); ovPanel.querySelectorAll('[data-o]').forEach(x=>x.classList.toggle('on', x===b)); });
-  ovPanel.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{ SET.quality=b.dataset.q; applyQuality(); saveSet(); ovPanel.querySelectorAll('[data-q]').forEach(x=>x.classList.toggle('on', x===b)); });
+  ovPanel.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{ SET.quality=b.dataset.q; SET.qManual=true; applyQuality(); saveSet(); ovPanel.querySelectorAll('[data-q]').forEach(x=>x.classList.toggle('on', x===b)); });
   document.getElementById('sens').oninput=e=>{ SET.sens=parseFloat(e.target.value); saveSet(); };
   document.getElementById('bob').onchange=e=>{ SET.bob=e.target.checked; saveSet(); };
   document.getElementById('mus').oninput=e=>{ SET.music=parseFloat(e.target.value); saveSet(); audioStart(); };
@@ -2894,6 +2975,7 @@ document.getElementById('mHelp').onclick=showHelp;
 document.getElementById('mReal').onclick=()=>showReal(false); document.getElementById('mSlots').onclick=()=>showSlots();
 document.getElementById('mSupport').onclick=()=>showSupport();
 document.getElementById('mImp').onclick=(e)=>{ e.preventDefault(); showImpressum(); };
+document.getElementById('mPriv').onclick=(e)=>{ e.preventDefault(); showPrivacy(); };
 
 async function lockOrientation(o){
   try {
@@ -2903,7 +2985,13 @@ async function lockOrientation(o){
     toast(o==='hoch' ? 'Hochformat gesperrt.' : 'Querformat gesperrt.', 'good');
   } catch(e){ toast(o==='hoch' ? 'Dein Browser erlaubt kein Sperren. Halte das Handy einfach senkrecht – das Spiel ist dafür ausgelegt.' : 'Dein Browser erlaubt kein Sperren. Dreh das Handy einfach quer.'); }
 }
+addEventListener('pagehide',()=>{ if (S.started) save(); });
+document.addEventListener('visibilitychange',()=>{ if (document.hidden && S.started) save(); });
 // ================= Grafikstufen =================
+let perfAcc=0, perfN=0, perfLow=0;
+function perfWatch(dt){ if (mode!=='play' || paused || SET.qManual) return; perfAcc+=dt; perfN++; if (perfAcc<2) return; const fps=perfN/perfAcc; perfAcc=0; perfN=0;
+  perfLow = fps<26 ? perfLow+1 : 0;
+  if (perfLow>=3 && SET.quality!=='niedrig'){ SET.quality = SET.quality==='hoch' ? 'mittel' : 'niedrig'; perfLow=0; saveSet(); applyQuality(); toast(`Grafik automatisch auf „${SET.quality==='mittel'?'Mittel':'Niedrig'}“ gestellt, damit das Spiel flüssig läuft. Ändern kannst du das in den Einstellungen.`); } }
 function applyQuality(){
   const q = SET.quality, dpr = window.devicePixelRatio||1;
   renderer.setPixelRatio(q==='niedrig' ? 1 : q==='mittel' ? Math.min(dpr,1.5) : Math.min(dpr,2));
@@ -2950,8 +3038,10 @@ function updateDoors(dt){
   lid.rotation.x += (lidTarget-lid.rotation.x)*Math.min(1,dt*6);
   ghDoorL.position.x = 5.6 - ghDoorOpen*0.78; ghDoorR.position.x = 6.4 + ghDoorOpen*0.78; ghDoorFrameL.position.x = ghDoorL.position.x; ghDoorFrameR.position.x = ghDoorR.position.x;
 }
-function frame(now){
-  const dt = Math.min(0.05, (now-last)/1000); last = now;
+let frameErr=0;
+function frame(now){ try { frameInner(now); } catch(e){ console.error(e); if (++frameErr===1) try { toast('Kleiner Fehler im Spiel – es läuft weiter. Falls etwas hakt: Spiel speichern und neu laden.','bad'); } catch(_){} requestAnimationFrame(frame); } }
+function frameInner(now){
+  const dt = Math.min(0.05, (now-last)/1000); last = now; perfWatch(dt);
   if (mode==='menu'){
     menuT += dt;
     const a = menuT*0.08;
@@ -2968,6 +3058,7 @@ function frame(now){
       const s=Math.sin(P.yaw), c=Math.cos(P.yaw);
       if (P.seat){ if (len>0.35) standUp(); } else [P.x,P.z] = collide(P.x + (fx*c + fz*s)*sp, P.z + (-fx*s + fz*c)*sp);
       if (len>0.1 && !P.seat) bob += dt*9;
+      if (Coop.role!=='client'){ // im Koop simuliert nur der Host die Welt
       S.minute += dt*timeScale();
       if (S.minute >= closeH()*60 && S.open){ closeShop(); toast(`${closeH()} Uhr – Ladenschluss. Wer drin ist, wird noch bedient. Um Mitternacht beginnt ein neuer Tag.`); }
       updateTourn(); updateTrade(); updateInspect(dt); updateCarry(); updateCarryDeco(); updateDw(); if (S.open && S.upg && S.upg.staff) S.staffHours=(S.staffHours||0)+dt*timeScale()/60; updateStaff(dt); updateRain(dt);
@@ -2975,6 +3066,7 @@ function frame(now){
       updateCustomers(dt); updateBrew(dt); checkGrading(); updateOnline(dt);
       if (S.minute >= 16*60 && S.pickedDay !== S.day){ S.pickedDay = S.day; courierPickup(); }
       updateCourier(dt);
+      }
     }
     updateDoors(dt);
     camera.position.set(P.x, P.seat ? 1.12 : 1.62 + (SET.bob ? Math.sin(bob)*0.022 : 0), P.z);
@@ -2983,7 +3075,7 @@ function frame(now){
     if (!paused) updateFocus();
     hudT -= dt; if (hudT<=0){ hudT=0.25; updateHud(); }
   }
-  updateAnims(dt); updateTermHint(dt); if ((frame._dn=(frame._dn||0)+1)%20===0) updateDayNight();
+  if (_ovPrevP){ P=_ovPrevP; _ovPrevP=null; } Coop.update(dt); updateAnims(dt); updateTermHint(dt); if ((frame._dn=(frame._dn||0)+1)%20===0) updateDayNight();
   if (renderer.shadowMap.enabled && ++shadowTick%12===0) renderer.shadowMap.needsUpdate=true; // Schatten nur alle 12 Bilder neu (Raum ist statisch)
   renderer.render(scene, camera);
   if (SET.fps){ fpsN++; fpsAcc+=now-(frame._l||now); frame._l=now; if (fpsAcc>=500){ fpsEl.textContent=`${Math.round(fpsN*1000/fpsAcc)} FPS · ${renderer.info.render.calls} Draw Calls`; fpsN=0; fpsAcc=0; } }
@@ -3028,5 +3120,6 @@ setInterval(()=>{ if (mode==='play') save(); }, 15000);
 })();
 </script>
 <script src="zurueck.js"></script>
+<script>if ("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>

@@ -11,6 +11,8 @@ Gehostet über **GitHub Pages** aus dem Branch `main`, Ordner `/` (root).
 | `zurueck.js` | Zurück-Taste (Browser/System-Zurück schließt Fenster, springt zum vorherigen Bereich) |
 | `spiel/index.html` | Das 3D-Spiel (Stand v2.3) – erreichbar unter gradingcafe.de/spiel |
 | `spiel/three.min.js`, `spiel/fonts/` | 3D-Bibliothek und Schriften lokal (keine externen Server, DSGVO) |
+| `spiel/manifest.webmanifest`, `spiel/sw.js`, `spiel/icons/` | Installierbar als App + offline spielbar. **Bei jedem Spiel-Update `CACHE` in `sw.js` hochzählen** |
+| `KOOP.md` | Wie die Koop-Grundlage funktioniert und was für Online-Koop noch fehlt |
 | `media/` | Trailer, Screenshots, Vorschaubild (`og.jpg`), Favicon (`icon.png`) |
 | `CNAME` | Enthält `gradingcafe.de` – **nicht löschen**, sonst ist die Domain weg |
 | `.nojekyll` | Sagt GitHub, dass die Dateien unverändert ausgeliefert werden |
