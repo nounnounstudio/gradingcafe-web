@@ -1,0 +1,25 @@
+name: AAB aus Codemagic holen
+# Holt das fertige App-Bundle über einen öffentlichen Codemagic-Link und legt es im Branch aab-transfer ab
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Öffentlicher Codemagic-Artefakt-Link
+        required: true
+permissions:
+  contents: write
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Herunterladen und ablegen
+        env:
+          AAB_URL: ${{ inputs.url }}
+        run: |
+          mkdir t && cd t
+          curl -sSfL "$AAB_URL" -o GradingCafe-store.aab
+          ls -la
+          git init -q && git checkout -q -b aab-transfer
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add . && git commit -qm "Store-AAB"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" aab-transfer
