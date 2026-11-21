@@ -33,3 +33,9 @@ Gebaut mit **Capacitor 8** (Android-Ziel-API 36, iOS mit Swift Package Manager, 
   - iOS-App-ID: `app/ios/App/App/Info.plist` (`GADApplicationIdentifier`)
 - Werbe-ID-Berechtigung `com.google.android.gms.permission.AD_ID` ist im Manifest. In der Play Console: App-Inhalte → „Enthält Werbung: Ja“ und Werbe-ID „Ja – Werbung“. Bei Apple: Datenschutzangaben um Werbedaten ergänzen.
 - `app-ads.txt` liegt auf nounnounstudio.github.io (gleicher Publisher).
+
+## Version 1.1.0 – Gratis-Kaffee per Video (eingereicht 22.11.2026)
+- AdMob: Android-App `ca-app-pub-9006391586189713~3097388197`, Belohnung `/9471224851`; iOS-App `~8036347545`, Belohnung `/5410184208`
+- Google Play: Release 7 (1.1.0) im geschlossenen Test Alpha eingereicht
+- iOS 1.1.0 (Build 3) bei Apple eingereicht
+- Workflow `.github/workflows/aab-transfer.yml` holt bei Bedarf ein Codemagic-App-Bundle über einen öffentlichen Link (nur für den Upload-Weg genutzt)
