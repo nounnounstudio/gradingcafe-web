@@ -8,6 +8,8 @@ workflows:
     environment:
       android_signing:
         - grading_cafe_upload        # Keystore in Codemagic: Team settings → Code signing identities → Android keystores
+      groups:
+        - google_play                # Dienstkonto-Schlüssel GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
       node: 22
       java: 21
       vars:
@@ -24,6 +26,11 @@ workflows:
           ./gradlew bundleRelease -Pvc=$((BUILD_NUMBER + 1)) -Pvn=$VERSION_NAME
     artifacts:
       - app/android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal              # landet als Entwurf im internen Test, von dort in Produktion übernehmen
+        submit_as_draft: true
 
   ios-release:
     name: Grading Café iOS
